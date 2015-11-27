@@ -233,6 +233,22 @@ final class Icons_For_Features {
 	} // End override_feature_icon_placeholder()
 
 	/**
+	 * Checks if FontAwesome CSS is already loaded by another plugin or the active theme
+	 * @access  private
+	 * @since   branch
+	 * @return  boolean
+	 */
+	private function check_fontawesome_loaded() {
+	  global $wp_styles;
+	  $srcs = array_map('basename', (array) wp_list_pluck($wp_styles->registered, 'src') );
+	  if ( in_array('font-awesome.css', $srcs) || in_array('font-awesome.min.css', $srcs)  ) {
+	    return true;
+	  } else {
+	    return false;
+	  }
+	} // End check_fontawesome_loaded()
+
+	/**
 	 * Register the CSS files to be loaded for this plugin.
 	 * @access public
 	 * @since  1.0.0
@@ -240,7 +256,9 @@ final class Icons_For_Features {
 	 */
 	public function register_styles () {
 		$suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
-		wp_register_style( $this->token . '-icons', esc_url( $this->plugin_url . 'assets/lib/font-awesome/css/font-awesome' . $suffix . '.css' ), array(), '4.0.3', 'all' );
+		if ( !$this->check_fontawesome_loaded() ) {
+			wp_register_style( $this->token . '-icons', esc_url( $this->plugin_url . 'assets/lib/font-awesome/css/font-awesome' . $suffix . '.css' ), array(), '4.0.3', 'all' );
+		}
 		wp_register_style( $this->token . '-icons-loader', esc_url( $this->plugin_url . 'assets/css/style.css' ), array( $this->token . '-icons' ), $this->version, 'all' );
 		wp_register_style( $this->token . '-icons-admin', esc_url( $this->plugin_url . 'assets/css/admin.css' ), array( $this->token . '-icons' ), $this->version, 'all' );
 		wp_register_style( $this->token . '-icons-chosen', esc_url( $this->plugin_url . 'assets/lib/chosen/chosen' . $suffix . '.css' ), array( $this->token . '-icons' ), $this->version, 'all' );
